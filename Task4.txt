@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Income Expense Tracker</title>
+  <style>
+    
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-sky-200">
+
+  <h1 class="flex justify-center font-bold text-3xl py-3 ">Income Expense Tracker</h1>
+
+  <div class="container auto mx-4">
+   <div>
+      <h2>Add Entry</h2>
+      <label for="type">Type:</label>
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select><br><br>
+      <label for="amount">Amount:</label>
+      <input type="number" id="amount" placeholder="  Enter amount" class="rounded-md"><br><br>
+      <label for="description">Description:</label>
+      <input type="text" id="description" placeholder="  Enter description" class="rounded-md"><br><br>
+      <button class="bg-sky-600 text-white ml-10 rounded-md px-3 py-1" onclick="addEntry()">Add</button>
+    </div>
+  
+    <h2>Transactions</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="transactionTable"></tbody>
+    </table>
+  
+    <h2>Summary</h2>
+    <p>Total Income: <span id="totalIncome">0.00</span></p>
+    <p>Total Expense: <span id="totalExpense">0.00</span></p>
+    <p>Net Balance: <span id="netBalance">0.00</span></p>
+  
+  </div>
+  <script>
+    let transactions = []; 
+
+    function addEntry() {
+      const type = document.getElementById("type").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const description = document.getElementById("description").value;
+
+      if (amount && description) {
+        const newTransaction = {
+          type: type,
+          amount: amount,
+          description: description
+        };
+        transactions.push(newTransaction);
+        displayTransactions();
+        calculateSummary();
+        clearForm();
+      }
+    }
+
+    function displayTransactions() {
+      const tableBody = document.getElementById("transactionTable");
+      tableBody.innerHTML = ""; 
+
+      transactions.forEach((transaction, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${transaction.type}</td>
+          <td>${transaction.amount.toFixed(2)}</td>
+          <td>${transaction.description}</td>
+          <td>
+            <button onclick="editEntry(${index})">Edit</button>
+            <button onclick="deleteEntry(${index})">Delete</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function calculateSummary() {
+      let totalIncome = 0;
+      let totalExpense = 0;
+
+      transactions.forEach(transaction => {
+        if (transaction.type === "income") {
+          totalIncome += transaction.amount;
+        } else {
+          totalExpense += transaction.amount;
+        }
+      });
+
+      const netBalance = totalIncome - totalExpense;
+
+      document.getElementById("totalIncome").textContent = totalIncome.toFixed(2);
+      document.getElementById("totalExpense").textContent = totalExpense.toFixed(2);
+      document.getElementById("netBalance").textContent = netBalance.toFixed(2);
+    }
+
+    function editEntry(index) {
+      const transaction = transactions[index];
+      document.getElementById("type").value = transaction.type;
+      document.getElementById("amount").value = transaction.amount;
+      document.getElementById("description").value = transaction.description;
+
+
+      transactions.splice(index, 1); 
+      displayTransactions();
+    }
+
+    function deleteEntry(index) {
+      transactions.splice(index, 1);
+      displayTransactions();
+      calculateSummary();
+    }
+
+    function clearForm() {
+      document.getElementById("type").value = "income";
+      document.getElementById("amount").value = "";
+      document.getElementById("description").value = "";
+    }
+  </script>
+
+</body>
+</html>
